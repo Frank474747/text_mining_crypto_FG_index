@@ -30,11 +30,11 @@ def clean_post(text):
         # 與主題太相關、太常見的字
         "eth", "ethereum", "crypto", "btc", "bitcoin", "price", "market", "time",
         "day", "week", "month", "year", "today", "tomorrow", "news", "update", "token", "blockchain",
-        "network", "chain", "project", "community", "development", "decentralized", "defi", "nft",
+        "network", "chain", "project", "development",
         "smart", "contract", "platform", "platforms",
 
         # 無意義功能字
-        "would", "could", "think", "also", "know", "really", "like",
+        "would", "could", "think", "also", "know", "really", "like", "new", "right",
         "get", "got", "even", "one", "make", "made", "much", "many",
         "still", "see", "say", "said", "way", "every", "bit", "lot", "use", 
         "thing", "people", "going", "since", "may", "everyone", "something",
@@ -58,6 +58,15 @@ def clean_post(text):
 # -----------------------------------
 def process_reddit_csv(input_csv, output_csv):
     df = pd.read_csv(input_csv)
+
+    # 轉成 datetime
+    df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
+
+    # 篩選 2025-05-01 ～ 2025-06-30（含首尾）
+    start_date = pd.Timestamp('2025-05-01')
+    end_date = pd.Timestamp('2025-06-30')
+
+    df = df[(df['created_at'] >= start_date) & (df['created_at'] <= end_date)]
     
     df['full_text'] = df['title'].fillna('') + ' ' + df['text'].fillna('')
     df['clean_text'] = df['full_text'].apply(clean_post)
